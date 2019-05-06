@@ -1,4 +1,4 @@
-package com.dimco.firstapp;
+package com.dimco.firstapp.entity;
 
 public class Question {
     private int resId;

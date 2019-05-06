@@ -1,31 +1,26 @@
-package com.dimco.firstapp;
+package com.dimco.firstapp.activity;
 
-import android.os.PersistableBundle;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.dimco.firstapp.entity.Question;
+import com.dimco.firstapp.R;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private static final String KEY_INDEX = "key_index";
 
-    private Button trueButton;
-    private Button falseButton;
-
-    private ImageButton nextButton;
-    private ImageButton previousButton;
-
     private TextView questionText;
 
     private int currentQuestionId;
 
-    private Question[] questionBank = new Question[] {
+    private Question[] questionBank = new Question[]{
             new Question(R.string.question_oceans, true),
             new Question(R.string.question_mideast, false),
             new Question(R.string.question_africa, false),
@@ -46,22 +41,22 @@ public class MainActivity extends AppCompatActivity {
         questionText = findViewById(R.id.question_text);
         generateQuestionText();
 
-        nextButton = findViewById(R.id.next_button);
+        ImageButton nextButton = findViewById(R.id.next_button);
         nextButton.setOnClickListener(v -> {
             currentQuestionId = (currentQuestionId + 1) % questionBank.length;
             generateQuestionText();
         });
 
-        previousButton = findViewById(R.id.previous_button);
+        ImageButton previousButton = findViewById(R.id.previous_button);
         previousButton.setOnClickListener(v -> {
             currentQuestionId = (currentQuestionId == 0) ? questionBank.length - 1 : (currentQuestionId - 1) % questionBank.length;
             generateQuestionText();
         });
 
-        trueButton = findViewById(R.id.true_button);
+        Button trueButton = findViewById(R.id.true_button);
         trueButton.setOnClickListener(v -> checkAnswer(true));
 
-        falseButton = findViewById(R.id.false_button);
+        Button falseButton = findViewById(R.id.false_button);
         falseButton.setOnClickListener(v -> checkAnswer(false));
 
         questionText.setOnClickListener(v -> {
@@ -106,11 +101,13 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         Log.d(TAG, "onResume() called");
     }
+
     @Override
     public void onStop() {
         super.onStop();
         Log.d(TAG, "onStop() called");
     }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
