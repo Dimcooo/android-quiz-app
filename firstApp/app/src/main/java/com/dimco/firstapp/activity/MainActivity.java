@@ -1,7 +1,10 @@
 package com.dimco.firstapp.activity;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Button;
@@ -16,10 +19,13 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private static final String KEY_INDEX = "key_index";
+    private static final String EXTRA_ANSWER_IS_TRUE = "com.dimco.firstapp.android.quiz.answer_is_true";
+    private static final int REQUEST_CODE_CHEAT = 1998;
 
     private TextView questionText;
 
     private int currentQuestionId;
+    private boolean isCheater;
 
     private Question[] questionBank = new Question[]{
             new Question(R.string.question_oceans, true),
@@ -45,12 +51,14 @@ public class MainActivity extends AppCompatActivity {
         ImageButton nextButton = findViewById(R.id.next_button);
         nextButton.setOnClickListener(v -> {
             currentQuestionId = (currentQuestionId + 1) % questionBank.length;
+            isCheater = false;
             generateQuestionText();
         });
 
         ImageButton previousButton = findViewById(R.id.previous_button);
         previousButton.setOnClickListener(v -> {
             currentQuestionId = (currentQuestionId == 0) ? questionBank.length - 1 : (currentQuestionId - 1) % questionBank.length;
+            isCheater = false;
             generateQuestionText();
         });
 
@@ -67,9 +75,30 @@ public class MainActivity extends AppCompatActivity {
 
         Button cheatButton = findViewById(R.id.cheat_button);
         cheatButton.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, CheatActivity.class);
-            startActivity(intent);
+            boolean answer = questionBank[currentQuestionId].isAnswerTrue();
+            startActivityForResult(newIntent(MainActivity.this, answer), REQUEST_CODE_CHEAT);
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (resultCode != Activity.RESULT_OK) {
+            return;
+        }
+
+        if (requestCode == REQUEST_CODE_CHEAT) {
+            assert data != null;
+            isCheater = CheatActivity.wasAnswerShown(data);
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private static Intent newIntent(Context context, boolean answer) {
+        Intent intent = new Intent(context, CheatActivity.class);
+        intent.putExtra(EXTRA_ANSWER_IS_TRUE, answer);
+
+        return intent;
     }
 
     private void generateQuestionText() {
@@ -79,7 +108,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void checkAnswer(boolean userAnswer) {
         boolean isAnswerTrue = questionBank[currentQuestionId].isAnswerTrue();
-        int messageResId = (userAnswer == isAnswerTrue) ? R.string.correct_answer : R.string.incorrect_answer;
+        int messageResId;
+
+        if (!isCheater) {
+            messageResId = (userAnswer == isAnswerTrue) ? R.string.correct_answer : R.string.incorrect_answer;
+        } else {
+            messageResId = R.string.judgment_toast;
+        }
 
         Toast.makeText(MainActivity.this, messageResId, Toast.LENGTH_SHORT).show();
     }
@@ -89,35 +124,5 @@ public class MainActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
         Log.i(TAG, "onSaveInstanceState");
         outState.putInt(KEY_INDEX, currentQuestionId);
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        Log.d(TAG, "onStart called");
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        Log.d(TAG, "onPause called");
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        Log.d(TAG, "onResume() called");
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        Log.d(TAG, "onStop() called");
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Log.d(TAG, "onDestroy() called");
     }
 }
