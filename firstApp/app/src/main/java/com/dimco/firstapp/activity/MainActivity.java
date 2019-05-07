@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
 
         questionText.setOnClickListener(v -> {
             currentQuestionId = (currentQuestionId + 1) % questionBank.length;
-            MainActivity.this.generateQuestionText();
+            generateQuestionText();
         });
 
         Button cheatButton = findViewById(R.id.cheat_button);
