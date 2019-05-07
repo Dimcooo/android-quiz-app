@@ -15,12 +15,19 @@ import android.widget.Toast;
 import com.dimco.firstapp.entity.Question;
 import com.dimco.firstapp.R;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
-    private static final String KEY_INDEX = "key_index";
+    private static final String CURRENT_QUESTION_ID = "";
     private static final String EXTRA_ANSWER_IS_TRUE = "com.dimco.firstapp.android.quiz.answer_is_true";
+    private static final String CHEATED_QUESTION_LIST = "CHEATED_QUESTION_LIST";
     private static final int REQUEST_CODE_CHEAT = 1998;
+
+    private Set<Integer> cheatedSet = new HashSet<>();
 
     private TextView questionText;
 
@@ -42,7 +49,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         if (savedInstanceState != null) {
-            currentQuestionId = savedInstanceState.getInt(KEY_INDEX, 0);
+            currentQuestionId = savedInstanceState.getInt(CURRENT_QUESTION_ID, 0);
+            cheatedSet = new HashSet<>(savedInstanceState.getIntegerArrayList(CHEATED_QUESTION_LIST));
         }
 
         questionText = findViewById(R.id.question_text);
@@ -89,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == REQUEST_CODE_CHEAT) {
             assert data != null;
             isCheater = CheatActivity.wasAnswerShown(data);
+            cheatedSet.add(currentQuestionId);
         }
 
         super.onActivityResult(requestCode, resultCode, data);
@@ -110,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
         boolean isAnswerTrue = questionBank[currentQuestionId].isAnswerTrue();
         int messageResId;
 
-        if (!isCheater) {
+        if (!cheatedSet.contains(currentQuestionId)) {
             messageResId = (userAnswer == isAnswerTrue) ? R.string.correct_answer : R.string.incorrect_answer;
         } else {
             messageResId = R.string.judgment_toast;
@@ -123,6 +132,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         Log.i(TAG, "onSaveInstanceState");
-        outState.putInt(KEY_INDEX, currentQuestionId);
+        outState.putInt(CURRENT_QUESTION_ID, currentQuestionId);
+        outState.putIntegerArrayList(CHEATED_QUESTION_LIST, new ArrayList<>(cheatedSet));
     }
 }
