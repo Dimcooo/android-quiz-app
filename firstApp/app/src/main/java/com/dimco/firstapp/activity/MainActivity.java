@@ -1,5 +1,6 @@
 package com.dimco.firstapp.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -62,6 +63,12 @@ public class MainActivity extends AppCompatActivity {
         questionText.setOnClickListener(v -> {
             currentQuestionId = (currentQuestionId + 1) % questionBank.length;
             MainActivity.this.generateQuestionText();
+        });
+
+        Button cheatButton = findViewById(R.id.cheat_button);
+        cheatButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, CheatActivity.class);
+            startActivity(intent);
         });
     }
 
